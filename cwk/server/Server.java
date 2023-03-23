@@ -9,13 +9,6 @@ import javax.swing.plaf.basic.BasicComboBoxUI.ItemHandler;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 
-// DONE 
-//need to make sure that usage message is displayed for no arguments
-//same for bid you need validation for number of args, if > 4 you need message
-
-// TO DO
-//then make sure you check in the hashmap that the item you are trying to add 
-// exists in the hashmap if so create a message
 
 public class Server {
 
@@ -26,9 +19,7 @@ public class Server {
 	HashMap<String, itemInfo> hashMap = new HashMap<String, itemInfo>();
 	private BufferedWriter toClient = null;
 
-	
 
-	
 	//To check if port can be used and whether the log file can be created 
     public Server(String fileName) throws IOException{
         try {
@@ -40,11 +31,9 @@ public class Server {
 
 		}
         catch (IOException e) {
-			//error message unalbe to listen to the port
+			//error message unable to listen to the port
             System.err.println("Could not listen on port: "+ serverPort);
 			System.err.println(e);
-			// System.err.println(e.getMessage());
-
         }
 
     }
@@ -54,52 +43,59 @@ public class Server {
 		Socket clientSocket = null;
 
 			try {
+
+				//Creates a thread pool size of 30
 				ExecutorService executorService = Executors.newFixedThreadPool(30);
+
 				while(true){
 
 					clientSocket = serverSocket.accept();
-
-					InetAddress inet = clientSocket.getInetAddress();
 				
 					//Add each new executorservice for the client connection
 					// Creates a new thread for the client and adds it to the executor
-					//HashMap to hold the item value
-
 					ClientHandler clientConnection = new ClientHandler(clientSocket,logWriter,hashMap);
 					executorService.submit(clientConnection);
 
 				}
-	
+
 			} catch (IOException e) {
 				System.err.println("Communication failed.");
+				System.err.println(e);
+		
 			}finally{
 				// Close the connection
 				// Close the server socket after all connections have been processed
-					try {
-						serverSocket.close();
-					} catch (IOException e) {
-						System.err.println("Could not close server socket.");
-					}
-
+				try {
+					serverSocket.close();
+				} catch (IOException e) {
+					System.err.println("Could not close server socket.");
+				}
 			}
 	}
 
 
+	//Calls the server to try to make a connection to the client
 	public static void main(String[] args) {
+
+	
 		try{
 			Server server = new Server("log.txt");
 			server.runServer();
 		}catch(IOException e){
 			System.err.println("Unable to connect to server" + e.getMessage());
 		}
+
 	}
 
 }
- 
+
+
+//class to hold the information (value, hostaddress) in a contained class
 class itemInfo {
     private double value;
     private String host;
 
+	//Constructors 
     public itemInfo(Double value, String host) {
 
         this.value = value;
@@ -107,6 +103,7 @@ class itemInfo {
         
     }
 
+	//Getters
     public double getValue() {
         return value;
     }
@@ -120,30 +117,30 @@ class itemInfo {
 
 //Class which handles the client input and processes it accordingly 
 class ClientHandler implements Runnable {
-	
+
+		//Variables which will be later used
 		Socket clientSocket = null;
 		BufferedReader readClient = null;
 		BufferedWriter logFile = null;
 		BufferedReader fileReader = null;
 		BufferedWriter toClient = null;
-		PrintWriter printClient = null;
+		PrintWriter printClient = null;		
+		String item;
 
 		//Dynamic Array
 		ArrayList<String> showItems = new ArrayList<String>();
 
-
-
+		//HashMap to store the valid user request
 		HashMap<String, itemInfo> hashMap = new HashMap<String, itemInfo>();
-		String item;
 
-
+		//Constructor
+		//parameters are sent from the client class (line 56)
 		public ClientHandler(Socket clientSocket, BufferedWriter logFile, HashMap<String, itemInfo> hashMap) throws IOException {
 			this.clientSocket = clientSocket;
         	this.readClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			this.logFile = logFile;
 			this.hashMap = hashMap;
 			this.printClient = new PrintWriter(clientSocket.getOutputStream(),true);
-			
 		}
 
 		// Method for accessing the itemInfo class
@@ -154,48 +151,50 @@ class ClientHandler implements Runnable {
 		// Get the connection from the client and handle the input and output
 		@Override
 		public void run() {
-			//Variable
+
+			//Variables
 			String clientInput;
 			Boolean found = false;
 			String readLine = null;
 
+			//Tries to read the text file
 			try{
 				fileReader = new BufferedReader(new FileReader("log.txt"));
-
 			}catch (FileNotFoundException e){
 				printClient.println(e.getMessage());
 			}
 
-			// System.out.println("Show");
-
 			try{
-
-				// toClient = new PrintWriter(clientSocket.getOutputStream(),true);
+				//Recieves client input  
 				clientInput = readClient.readLine();
 
-				// System.out.println("Received from client: " + clientInput);
-			
 				//Check Validation
+				//Show Validation
 				if (clientInput.equalsIgnoreCase("show")){
 
-					// System.out.println("Show");
+					//No items in the hashmap
 					if (hashMap.size() == 0){
 						printClient.println("There are currently no items in this auction.");
-					}
-					else{
+					}else{
+
 						//Send the entire hashmap back to the client for it to be displayed
 						for (Map.Entry<String, itemInfo> row : hashMap.entrySet()){
 
 							showItems.add(row.getKey() + " : " + row.getValue().getValue()+ " : " + row.getValue().getHost());
 						}
+
 						//Convert ArrayList to an array 
 						String[] output = showItems.toArray(new String[showItems.size()]);
 						String returnItems = Arrays.toString(output);
+
+						//Returns the arrays back to the client to be further processed
 						printClient.println(returnItems);
 
 					}
-
+				
+				//item Validation
 				}else{
+
 					String[] clientHolder = clientInput.split(" ");
 					item = clientHolder[1];
 				
@@ -206,12 +205,11 @@ class ClientHandler implements Runnable {
 
 						//Loop in hashmap to check item does exist
 						for (Map.Entry<String, itemInfo> row : hashMap.entrySet()){
-							// printClient.println(row.getKey().toString());
+
 							if (row.getKey().equals(item)){
-								
 								exists = true;
-								
 							}
+
 						}
 
 						if (exists == true){
@@ -224,20 +222,21 @@ class ClientHandler implements Runnable {
 							printClient.println("Success.");
 						}
 
+					//Bid Validation
 					}else if (clientHolder[0].equalsIgnoreCase("bid")){
 						
 						try{
 							//Get item
+							//Compare bid values 
 							if (hashMap.get(clientHolder[1]).getValue() >= Double.parseDouble(clientHolder[2])){
 								printClient.println("Rejected.");
 							}else{
-								
+								//Client bid is larger 
 								save(clientSocket, clientInput);
 								hashMap.put(clientHolder[1], itemInfo(Double.parseDouble(clientHolder[2]),clientSocket.getInetAddress().getHostAddress().toString()));
 								printClient.println("Accepted.");
 							}
 
-							// System.out.println("Hash Map Value is " + hashMap.get(clientHolder[1]).getValue() + " Client Value is "+Double.parseDouble(clientHolder[2]));
 						}catch(NullPointerException e){
 							printClient.println("Rejected.");
 						}
@@ -245,22 +244,14 @@ class ClientHandler implements Runnable {
 					}
 				}
 			
-
-
-			
-				//Show command to print off all items in the auction
-
 			}catch(IOException e){
 				printClient.println("Error reading from the client " + e.getMessage());
 			}
 
-			// System.out.println();
-		
 		}
 
 		//Function to store every valid request to the log file
 		public void save(Socket clientSocket, String clientInput) throws IOException{
-
 
 			//Save request to log file.
 			//format : date|time|client IP address|request
@@ -282,8 +273,6 @@ class ClientHandler implements Runnable {
 
 			logFile.flush();
 
-				 
-					
 		}
 }
 
