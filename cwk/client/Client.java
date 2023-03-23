@@ -1,32 +1,33 @@
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
+
+import javax.swing.RepaintManager;
 
 public class Client {
 	private Socket s;
 	private static PrintWriter clientOut = null;
 	private static BufferedReader clientIn = null;
-	private int clientPort = 6503;
+	private int clientPort = 6503; //Port
 
 	public Client(){
 		
 	}
 
+
+	//creates a socket connection to the client
 	public void connect() throws IOException{
        
             // Try to open up a socket with this host ('localhost'), port number.
 			try{
 				s = new Socket( "localhost", clientPort);
 
-				// System.out.println("Connection established.. processing now ");
-
 				//Create a chain for reading and writing back to the user
 				clientOut = new PrintWriter(s.getOutputStream(), true);
 				clientIn = new BufferedReader(new InputStreamReader(s.getInputStream()));	
 
-				
 			}catch (IOException e){
-				System.out.println("Unable to connect to server.");
+				System.err.println("Unable to connect to server.");
+				System.err.println(e.getMessage());
 			}
 		
     }
@@ -39,9 +40,9 @@ public class Client {
 			Client client = new Client();
 
 			// show : displays a table containing all items in the auction with column names (item name, current bid, IP address of client
-			// System.out.println(args.length);
 			if (args.length == 0){
 				System.err.println("Usage: java show");
+			
 			} else if (args.length == 1){
 				if (args[0].equalsIgnoreCase("show")){
 				
@@ -49,18 +50,18 @@ public class Client {
 					clientOut.println("show");
 					String response = clientIn.readLine();
 					
-					
+					//Check if the returned item is an list meaning there are items in the array
 					if (response.startsWith("[") && response.endsWith("]")) {
+						//Convert it to array
+
+						//For loop and print new line
+
+						System.out.println(response);
 						System.out.println("myString is an array");
 					}
-					// System.out.println(response.startsWith("["));
-
-					// System.out.println(response.endsWith("]"));
-
-
+					
 				}else{
-					System.err.println("Usage: java show");		
-
+					System.err.println("Usage: java show");	
 				}
 		
 			// item : adds a new item to the auction with a bid price of zero (no bids has been made)
@@ -70,6 +71,7 @@ public class Client {
 
 					client.connect();
 					clientOut.println("item " + args[1]);
+
 					System.out.println("Server response: " + clientIn.readLine());
 
 				}else{
@@ -94,7 +96,6 @@ public class Client {
 			}
 			
 		}
-	
 	
 		catch(IOException e ){
 			//Error Message
