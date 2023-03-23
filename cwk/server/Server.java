@@ -3,9 +3,6 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.swing.plaf.basic.BasicComboBoxUI.ItemHandler;
-
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 
@@ -17,7 +14,6 @@ public class Server {
 	private int serverPort = 6503;
  	private BufferedWriter logWriter = null;
 	HashMap<String, itemInfo> hashMap = new HashMap<String, itemInfo>();
-	private BufferedWriter toClient = null;
 
 
 	//To check if port can be used and whether the log file can be created 
@@ -51,7 +47,7 @@ public class Server {
 
 					clientSocket = serverSocket.accept();
 				
-					//Add each new executorservice for the client connection
+					//Add each new executor service for the client connection
 					// Creates a new thread for the client and adds it to the executor
 					ClientHandler clientConnection = new ClientHandler(clientSocket,logWriter,hashMap);
 					executorService.submit(clientConnection);
@@ -90,7 +86,7 @@ public class Server {
 }
 
 
-//class to hold the information (value, hostaddress) in a contained class
+//class to hold the information (value, hostAddress) in a contained class
 class itemInfo {
     private double value;
     private String host;
@@ -154,8 +150,6 @@ class ClientHandler implements Runnable {
 
 			//Variables
 			String clientInput;
-			Boolean found = false;
-			String readLine = null;
 
 			//Tries to read the text file
 			try{
@@ -165,7 +159,7 @@ class ClientHandler implements Runnable {
 			}
 
 			try{
-				//Recieves client input  
+				//Receives client input  
 				clientInput = readClient.readLine();
 
 				//Check Validation
