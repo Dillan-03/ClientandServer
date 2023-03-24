@@ -99,10 +99,12 @@ class itemInfo {
         
     }
 
-	//Getters
+	//Getters returning the current bid
     public double getValue() {
         return value;
     }
+
+	//Getters returning the host 
 
     public String getHost() {
         return host;
