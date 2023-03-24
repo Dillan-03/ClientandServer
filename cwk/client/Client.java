@@ -69,7 +69,7 @@ public class Client {
 			// item : adds a new item to the auction with a bid price of zero (no bids has been made)
 			}else if (args.length == 2){
 
-			 	if (args[0].equalsIgnoreCase("item")){		
+			 	if (args[0].equals("item")){		
 
 					client.connect();
 					clientOut.println("item " + args[1]);
@@ -83,7 +83,7 @@ public class Client {
 			
 			// bid : attempts to to make a bid of value for the item
 			}else if (args.length == 3){
-				if (args[0].equalsIgnoreCase("bid")){
+				if (args[0].equals("bid")){
 				
 					client.connect();
 					clientOut.println("bid " + args[1] + " " + args[2]);
