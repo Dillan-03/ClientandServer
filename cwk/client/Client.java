@@ -1,8 +1,6 @@
 import java.io.*;
 import java.net.*;
 
-import javax.swing.RepaintManager;
-
 public class Client {
 	private Socket s;
 	private static PrintWriter clientOut = null;
@@ -44,7 +42,7 @@ public class Client {
 				System.err.println("Usage: java show");
 			
 			} else if (args.length == 1){
-				if (args[0].equalsIgnoreCase("show")){
+				if (args[0].equals("show")){
 				
 					client.connect();
 					clientOut.println("show");
@@ -53,11 +51,15 @@ public class Client {
 					//Check if the returned item is an list meaning there are items in the array
 					if (response.startsWith("[") && response.endsWith("]")) {
 						//Convert it to array
+						//Ignore square brackets (slicing)
+						response = response.substring(1, response.length()-1);
 
-						//For loop and print new line
+						String[] auctionList = response.split(", ");
+						for(String s : auctionList) {
 
-						System.out.println(response);
-						System.out.println("myString is an array");
+							System.out.println(s);
+						}
+
 					}
 					
 				}else{
@@ -72,7 +74,7 @@ public class Client {
 					client.connect();
 					clientOut.println("item " + args[1]);
 
-					System.out.println("Server response: " + clientIn.readLine());
+					System.out.println(clientIn.readLine());
 
 				}else{
 
@@ -106,9 +108,4 @@ public class Client {
 	}
 
 
-		
-
-		
-
-		
 }
