@@ -202,7 +202,7 @@ class ClientHandler implements Runnable {
 						//Loop in hashmap to check item does exist
 						for (Map.Entry<String, itemInfo> row : hashMap.entrySet()){
 
-							if (row.getKey().equals(item)){
+							if (row.getKey().equalsIgnoreCase(item)){
 								exists = true;
 							}
 
